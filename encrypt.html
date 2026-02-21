@@ -3,112 +3,185 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Send Secret — Encrypted Key Transfer</title>
+<title>Encrypt Ai ™</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&display=swap');
-
-  :root {
-    --ink: #0f0f14;
-    --paper: #fafaf7;
-    --cream: #f0ede6;
-    --accent: #1b4332;
-    --gold: #b5833a;
-    --red: #c0392b;
-    --border: #d4cfc5;
-    --muted: #8c8880;
-  }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  :root {
+    --black: #000000;
+    --main-bg: #1e2128;
+    --card-bg: #12151b;
+    --border: rgba(255,255,255,0.07);
+    --text: #ffffff;
+    --muted: #8b8fa8;
+    --blue: #4a9eff;
+    --blue-dim: rgba(74,158,255,0.15);
+    --green: #34d399;
+    --red: #f87171;
+  }
+
   body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'DM Mono', monospace;
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Roboto', sans-serif;
     min-height: 100vh;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    position: relative;
+    display: flex;
+    flex-direction: column;
   }
 
-  /* Subtle grid texture */
-  body::before {
-    content: '';
+  /* TOP NAV */
+  .topnav {
+    background: var(--black);
+    border-bottom: 1px solid var(--border);
+    padding: 0 36px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
   }
 
-  header {
-    border-bottom: 2px solid var(--ink);
-    padding: 24px 40px;
+  .logo {
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+  }
+
+  .nav-btn {
+    background: transparent;
+    border: 1.5px solid var(--blue);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 7px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .nav-btn:hover { background: var(--blue-dim); }
+
+  /* LAYOUT */
+  .layout {
     display: flex;
-    align-items: baseline;
-    gap: 20px;
-    animation: slideIn 0.5s ease;
+    flex: 1;
+    padding-top: 64px;
   }
 
-  header h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.8rem;
-    letter-spacing: -0.5px;
+  /* SIDEBAR */
+  .sidebar {
+    width: 210px;
+    background: var(--black);
+    border-right: 1px solid var(--border);
+    padding: 28px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: fixed;
+    top: 64px; bottom: 0; left: 0;
   }
 
-  header .tagline {
-    font-size: 0.72rem;
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-size: 0.8rem;
+    font-weight: 500;
     color: var(--muted);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    font-family: 'Inter', sans-serif;
   }
 
-  header .secure-badge {
-    margin-left: auto;
-    background: var(--accent);
-    color: #fff;
-    font-size: 0.65rem;
-    padding: 4px 12px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+  .sidebar-item:hover {
+    color: var(--text);
+    border-color: rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.03);
   }
 
-  main {
+  .sidebar-item.active {
+    color: var(--text);
+    border-color: var(--blue);
+    background: var(--blue-dim);
+  }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    margin-left: 210px;
+    background: var(--main-bg);
+    min-height: calc(100vh - 64px);
     display: flex;
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    padding: 60px 20px;
-    gap: 40px;
-    flex-wrap: wrap;
+    padding: 60px 40px;
   }
 
-  .panel {
-    background: var(--cream);
-    border: 1.5px solid var(--border);
+  .page-title {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .page-sub {
+    color: var(--muted);
+    font-size: 0.82rem;
+    margin-bottom: 44px;
+    text-align: center;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
     padding: 36px;
     width: 100%;
-    max-width: 520px;
-    animation: riseUp 0.5s ease 0.1s both;
+    max-width: 540px;
+    animation: riseUp 0.4s ease both;
   }
 
-  .panel-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.4rem;
-    margin-bottom: 6px;
-  }
-
-  .panel-desc {
-    font-size: 0.75rem;
-    color: var(--muted);
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     margin-bottom: 28px;
-    line-height: 1.6;
   }
+
+  .card-icon {
+    width: 38px; height: 38px;
+    background: var(--blue-dim);
+    border: 1px solid rgba(74,158,255,0.3);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .card-title { font-size: 1rem; font-weight: 700; }
+  .card-desc  { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
 
   label {
     display: block;
     font-size: 0.68rem;
-    letter-spacing: 0.12em;
+    font-weight: 600;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--muted);
     margin-bottom: 8px;
@@ -117,221 +190,201 @@
 
   label:first-of-type { margin-top: 0; }
 
-  textarea, input {
+  textarea {
     width: 100%;
-    background: var(--paper);
-    border: 1.5px solid var(--border);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
-    padding: 14px;
-    color: var(--ink);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-family: 'Inter', monospace;
+    font-size: 0.85rem;
+    padding: 14px 16px;
+    color: var(--text);
     outline: none;
-    transition: border-color 0.2s;
     resize: vertical;
+    min-height: 120px;
+    transition: border-color 0.2s;
+    line-height: 1.6;
   }
 
-  textarea:focus, input:focus { border-color: var(--accent); }
-  textarea { min-height: 120px; }
+  textarea::placeholder { color: var(--muted); }
+  textarea:focus { border-color: rgba(74,158,255,0.5); }
 
-  .btn {
+  .encrypt-btn {
     width: 100%;
-    margin-top: 24px;
-    padding: 16px;
-    border: 2px solid var(--ink);
-    background: var(--ink);
-    color: var(--paper);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.85rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
+    margin-top: 20px;
+    padding: 15px;
+    background: var(--blue);
+    border: none;
+    border-radius: 12px;
+    color: #000;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
-    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    letter-spacing: 0.02em;
   }
 
-  .btn:hover { background: var(--accent); border-color: var(--accent); }
-  .btn:active { transform: scale(0.99); }
+  .encrypt-btn:hover {
+    background: #6ab4ff;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(74,158,255,0.3);
+  }
 
+  .encrypt-btn:active { transform: translateY(0); }
+
+  /* RESULT */
   .result {
     display: none;
-    margin-top: 24px;
-    background: var(--paper);
-    border: 1.5px solid var(--accent);
+    margin-top: 20px;
+    background: rgba(52,211,153,0.05);
+    border: 1px solid rgba(52,211,153,0.2);
+    border-radius: 12px;
     padding: 16px;
-    position: relative;
+    animation: riseUp 0.3s ease;
   }
 
-  .result.show { display: block; }
-  .result.error { border-color: var(--red); }
+  .result.show  { display: block; }
+  .result.error { background: rgba(248,113,113,0.05); border-color: rgba(248,113,113,0.2); }
 
   .result-label {
     font-size: 0.65rem;
-    letter-spacing: 0.12em;
+    font-weight: 700;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--accent);
+    color: var(--green);
     margin-bottom: 10px;
   }
 
   .result.error .result-label { color: var(--red); }
 
   .result-text {
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     word-break: break-all;
     line-height: 1.7;
-    color: var(--ink);
-    max-height: 140px;
+    color: rgba(255,255,255,0.6);
+    max-height: 120px;
     overflow-y: auto;
+    font-family: monospace;
   }
 
   .copy-btn {
     margin-top: 12px;
     background: transparent;
-    border: 1.5px solid var(--accent);
-    color: var(--accent);
-    font-family: 'DM Mono', monospace;
+    border: 1px solid rgba(52,211,153,0.35);
+    color: var(--green);
+    font-family: 'Inter', sans-serif;
     font-size: 0.72rem;
+    font-weight: 600;
     padding: 8px 16px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
   }
 
-  .copy-btn:hover { background: var(--accent); color: #fff; }
+  .copy-btn:hover { background: rgba(52,211,153,0.1); }
 
-  .how-it-works {
-    max-width: 520px;
-    width: 100%;
-    animation: riseUp 0.5s ease 0.2s both;
-  }
-
-  .how-it-works h2 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.1rem;
-    margin-bottom: 16px;
-    padding-bottom: 10px;
-    border-bottom: 1.5px solid var(--border);
-  }
-
-  .step {
+  /* MINI STEPS */
+  .steps-row {
     display: flex;
-    gap: 14px;
-    margin-bottom: 14px;
-    font-size: 0.75rem;
-    line-height: 1.7;
-    color: #444;
-  }
-
-  .step-n {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.2rem;
-    color: var(--gold);
-    flex-shrink: 0;
-    width: 20px;
-  }
-
-  .lock-visual {
-    margin: 28px 0;
-    text-align: center;
-    font-size: 2.5rem;
-    opacity: 0.15;
-    letter-spacing: 8px;
-  }
-
-  .security-note {
-    background: rgba(27,67,50,0.06);
-    border-left: 3px solid var(--accent);
-    padding: 12px 16px;
-    font-size: 0.72rem;
-    color: #444;
-    line-height: 1.7;
+    gap: 10px;
     margin-top: 20px;
   }
 
-  footer {
-    border-top: 1.5px solid var(--border);
-    padding: 16px 40px;
-    font-size: 0.68rem;
+  .step-mini {
+    flex: 1;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 12px;
+    font-size: 0.7rem;
     color: var(--muted);
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
+    line-height: 1.6;
   }
 
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-10px); }
+  .step-mini .n {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--blue);
+    margin-bottom: 5px;
+  }
+
+  /* FOOTER */
+  .footer {
+    background: var(--black);
+    border-top: 1px solid var(--border);
+    padding: 18px 40px;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-left: 210px;
+  }
+
+  @keyframes riseUp {
+    from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  @keyframes riseUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to   { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 640px) {
+    .sidebar { display: none; }
+    .main, .footer { margin-left: 0; }
+    .steps-row { flex-direction: column; }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>📨 Send Secret</h1>
-  <span class="tagline">End-to-end encrypted key transfer</span>
-  <span class="secure-badge">🔒 RSA-4096 · Browser Only</span>
-</header>
+<nav class="topnav">
+  <div class="logo">Encrypt Ai ™</div>
+  <button class="nav-btn">Dashboard</button>
+</nav>
 
-<main>
-  <div class="panel">
-    <div class="panel-title">Encrypt Your Message</div>
-    <p class="panel-desc">Your data is encrypted directly in your browser using the recipient's public key. Nothing is ever sent to any server — only you and the recipient can read the result.</p>
+<div class="layout">
 
-    <label>Your secret (API key, token, password…)</label>
-    <textarea id="plaintext" placeholder="Paste your API key or any sensitive data here…"></textarea>
+  <aside class="sidebar">
+    <button class="sidebar-item active">🔐&nbsp; Encrypt Data</button>
+  </aside>
 
-    <button class="btn" onclick="encryptMessage()">🔐 Encrypt for Recipient</button>
+  <main class="main">
 
-    <div class="result" id="result">
-      <div class="result-label" id="resultLabel">Encrypted — safe to share anywhere</div>
-      <div class="result-text" id="resultText"></div>
-      <button class="copy-btn" id="copyBtn" onclick="copyResult()">Copy Encrypted Text</button>
-    </div>
-  </div>
+    <div class="page-title">Encrypt Your Data</div>
+    <p class="page-sub">RSA-4096 · End-to-end · Zero server · Browser only</p>
 
-  <div class="how-it-works">
-    <h2>How this works</h2>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🔐</div>
+        <div>
+          <div class="card-title">Secure Encryption</div>
+          <div class="card-desc">Encrypted in your browser. Never transmitted anywhere.</div>
+        </div>
+      </div>
 
-    <div class="step">
-      <div class="step-n">1</div>
-      <div>You paste your secret here. It <strong>never leaves your browser</strong> in readable form — encryption happens locally using JavaScript.</div>
-    </div>
-    <div class="step">
-      <div class="step-n">2</div>
-      <div>The secret is encrypted with the recipient's <strong>Public Key</strong>. Only their corresponding Private Key can decrypt it — mathematically guaranteed.</div>
-    </div>
-    <div class="step">
-      <div class="step-n">3</div>
-      <div>You copy the encrypted blob and send it through <strong>any channel</strong> — email, Slack, company messenger — it doesn't matter who reads it.</div>
-    </div>
-    <div class="step">
-      <div class="step-n">4</div>
-      <div>The recipient decrypts it privately on their machine. <strong>No password exchange needed.</strong></div>
+      <label>Your secret — API key, token, password…</label>
+      <textarea id="plaintext" placeholder="Shifrlash uchun matn..."></textarea>
+
+      <button class="encrypt-btn" onclick="encryptMessage()">
+        🔐&nbsp; Shifrlash
+      </button>
+
+      <div class="result" id="result">
+        <div class="result-label" id="resultLabel">✓ Encrypted</div>
+        <div class="result-text" id="resultText"></div>
+        <button class="copy-btn" id="copyBtn" onclick="copyResult()">Copy Encrypted Text</button>
+      </div>
     </div>
 
-    <div class="lock-visual">🔑 🔒 📨</div>
+  </main>
+</div>
 
-    <div class="security-note">
-      <strong>Zero server involvement.</strong> This page contains only the recipient's public key (which is meant to be public). Your plaintext is never transmitted anywhere. You can verify this by inspecting the network tab in DevTools — you'll see zero outgoing requests when you click Encrypt.
-    </div>
-  </div>
-</main>
-
-<footer>
-  <span>RSA-OAEP 4096-bit + AES-256-GCM hybrid encryption · Web Crypto API</span>
-  <span>Everything runs locally in your browser</span>
-</footer>
+<footer class="footer">Encrypt Ai ™</footer>
 
 <script>
 // ─── PASTE YOUR PUBLIC KEY HERE ─────────────────────────────────────────────
-// Run keygen.html on your machine, copy the Public Key, and replace the
-// placeholder below (keep the backticks and the variable assignment).
-
 const PUBLIC_KEY_PEM = `-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA7gV2qKwo2t0YLipbj/D3
 nOHXkKEE0xVzSuwUWsYQXTVBO8/ybMKDxnGMi1dTleC0ejaozvipgngbUHksmjcj
@@ -346,72 +399,42 @@ WESruw8LGkW9Oxt/5TzmjpDFW9gn/GQcSastLU/9uST8z4nZkfNR1amuwdSAeRO9
 we1kW3Ck4JsokuVFAx8aJUhDZhsCA8ceCUszR+G+MywcsoSG0RBv99DkDNrgHKDO
 4US+uSv3BV8DK2j0haXLDOUCAwEAAQ==
 -----END PUBLIC KEY-----`;
-
 // ────────────────────────────────────────────────────────────────────────────
-
-// RSA can only encrypt small data, so we use hybrid encryption:
-// 1. Generate a random AES-256 key
-// 2. Encrypt the plaintext with AES-256-GCM
-// 3. Encrypt the AES key with RSA-OAEP
-// 4. Bundle both together → recipient decrypts AES key with RSA, then decrypts data
 
 async function importPublicKey(pem) {
   const b64 = pem.replace(/-----[^-]+-----/g, '').replace(/\s/g, '');
   const buf = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-  return crypto.subtle.importKey(
-    'spki', buf,
-    { name: 'RSA-OAEP', hash: 'SHA-256' },
-    false, ['encrypt']
-  );
+  return crypto.subtle.importKey('spki', buf, { name: 'RSA-OAEP', hash: 'SHA-256' }, false, ['encrypt']);
 }
 
 async function encryptMessage() {
   const plaintext = document.getElementById('plaintext').value.trim();
   if (!plaintext) { showError('Please enter something to encrypt.'); return; }
-
   if (PUBLIC_KEY_PEM.includes('YOUR_PUBLIC_KEY_HERE')) {
-    showError('⚠ This page has not been configured yet. The site owner needs to paste their public key into this page.');
+    showError('⚠ Not configured yet — the site owner needs to add their public key.');
     return;
   }
-
   try {
     const enc = new TextEncoder();
-
-    // 1. Generate ephemeral AES-256-GCM key
     const aesKey = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt']);
     const rawAes = await crypto.subtle.exportKey('raw', aesKey);
-
-    // 2. Encrypt plaintext with AES
     const iv = crypto.getRandomValues(new Uint8Array(12));
     const cipherBuf = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, aesKey, enc.encode(plaintext));
-
-    // 3. Encrypt AES key with RSA public key
     const pubKey = await importPublicKey(PUBLIC_KEY_PEM);
     const encAesKey = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, pubKey, rawAes);
-
-    // 4. Pack everything: [2 bytes: encAesKey length][encAesKey][12 bytes: iv][ciphertext]
     const encAesKeyArr = new Uint8Array(encAesKey);
     const keyLen = encAesKeyArr.length;
-    const lenBuf = new Uint8Array([keyLen >> 8, keyLen & 0xff]);
-
     const total = new Uint8Array(2 + keyLen + 12 + cipherBuf.byteLength);
-    total.set(lenBuf, 0);
+    total.set([keyLen >> 8, keyLen & 0xff], 0);
     total.set(encAesKeyArr, 2);
     total.set(iv, 2 + keyLen);
     total.set(new Uint8Array(cipherBuf), 2 + keyLen + 12);
-
-    const b64 = btoa(String.fromCharCode(...total));
-    const blob = `RSA::${b64}`;
-
-    document.getElementById('resultText').textContent = blob;
+    document.getElementById('resultText').textContent = `RSA::${btoa(String.fromCharCode(...total))}`;
     document.getElementById('resultLabel').textContent = '✓ Encrypted — safe to share anywhere';
     const r = document.getElementById('result');
     r.classList.remove('error');
     r.classList.add('show');
-
-  } catch(e) {
-    showError('Encryption failed: ' + e.message);
-  }
+  } catch(e) { showError('Encryption failed: ' + e.message); }
 }
 
 function showError(msg) {
@@ -422,8 +445,7 @@ function showError(msg) {
 }
 
 function copyResult() {
-  const text = document.getElementById('resultText').textContent;
-  navigator.clipboard.writeText(text).then(() => {
+  navigator.clipboard.writeText(document.getElementById('resultText').textContent).then(() => {
     const btn = document.getElementById('copyBtn');
     btn.textContent = '✓ Copied!';
     setTimeout(() => btn.textContent = 'Copy Encrypted Text', 2000);
