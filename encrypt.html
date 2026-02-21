@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Send Secret — Encrypted Key Transfer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #0f0f14;
+    --paper: #fafaf7;
+    --cream: #f0ede6;
+    --accent: #1b4332;
+    --gold: #b5833a;
+    --red: #c0392b;
+    --border: #d4cfc5;
+    --muted: #8c8880;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    position: relative;
+  }
+
+  /* Subtle grid texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  header {
+    border-bottom: 2px solid var(--ink);
+    padding: 24px 40px;
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    animation: slideIn 0.5s ease;
+  }
+
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.8rem;
+    letter-spacing: -0.5px;
+  }
+
+  header .tagline {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  header .secure-badge {
+    margin-left: auto;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.65rem;
+    padding: 4px 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  main {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  .panel {
+    background: var(--cream);
+    border: 1.5px solid var(--border);
+    padding: 36px;
+    width: 100%;
+    max-width: 520px;
+    animation: riseUp 0.5s ease 0.1s both;
+  }
+
+  .panel-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    margin-bottom: 6px;
+  }
+
+  .panel-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+
+  label {
+    display: block;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    margin-top: 20px;
+  }
+
+  label:first-of-type { margin-top: 0; }
+
+  textarea, input {
+    width: 100%;
+    background: var(--paper);
+    border: 1.5px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    padding: 14px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+    resize: vertical;
+  }
+
+  textarea:focus, input:focus { border-color: var(--accent); }
+  textarea { min-height: 120px; }
+
+  .btn {
+    width: 100%;
+    margin-top: 24px;
+    padding: 16px;
+    border: 2px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn:hover { background: var(--accent); border-color: var(--accent); }
+  .btn:active { transform: scale(0.99); }
+
+  .result {
+    display: none;
+    margin-top: 24px;
+    background: var(--paper);
+    border: 1.5px solid var(--accent);
+    padding: 16px;
+    position: relative;
+  }
+
+  .result.show { display: block; }
+  .result.error { border-color: var(--red); }
+
+  .result-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .result.error .result-label { color: var(--red); }
+
+  .result-text {
+    font-size: 0.72rem;
+    word-break: break-all;
+    line-height: 1.7;
+    color: var(--ink);
+    max-height: 140px;
+    overflow-y: auto;
+  }
+
+  .copy-btn {
+    margin-top: 12px;
+    background: transparent;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .copy-btn:hover { background: var(--accent); color: #fff; }
+
+  .how-it-works {
+    max-width: 520px;
+    width: 100%;
+    animation: riseUp 0.5s ease 0.2s both;
+  }
+
+  .how-it-works h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  .step {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 14px;
+    font-size: 0.75rem;
+    line-height: 1.7;
+    color: #444;
+  }
+
+  .step-n {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: var(--gold);
+    flex-shrink: 0;
+    width: 20px;
+  }
+
+  .lock-visual {
+    margin: 28px 0;
+    text-align: center;
+    font-size: 2.5rem;
+    opacity: 0.15;
+    letter-spacing: 8px;
+  }
+
+  .security-note {
+    background: rgba(27,67,50,0.06);
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    font-size: 0.72rem;
+    color: #444;
+    line-height: 1.7;
+    margin-top: 20px;
+  }
+
+  footer {
+    border-top: 1.5px solid var(--border);
+    padding: 16px 40px;
+    font-size: 0.68rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes riseUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📨 Send Secret</h1>
+  <span class="tagline">End-to-end encrypted key transfer</span>
+  <span class="secure-badge">🔒 RSA-4096 · Browser Only</span>
+</header>
+
+<main>
+  <div class="panel">
+    <div class="panel-title">Encrypt Your Message</div>
+    <p class="panel-desc">Your data is encrypted directly in your browser using the recipient's public key. Nothing is ever sent to any server — only you and the recipient can read the result.</p>
+
+    <label>Your secret (API key, token, password…)</label>
+    <textarea id="plaintext" placeholder="Paste your API key or any sensitive data here…"></textarea>
+
+    <button class="btn" onclick="encryptMessage()">🔐 Encrypt for Recipient</button>
+
+    <div class="result" id="result">
+      <div class="result-label" id="resultLabel">Encrypted — safe to share anywhere</div>
+      <div class="result-text" id="resultText"></div>
+      <button class="copy-btn" id="copyBtn" onclick="copyResult()">Copy Encrypted Text</button>
+    </div>
+  </div>
+
+  <div class="how-it-works">
+    <h2>How this works</h2>
+
+    <div class="step">
+      <div class="step-n">1</div>
+      <div>You paste your secret here. It <strong>never leaves your browser</strong> in readable form — encryption happens locally using JavaScript.</div>
+    </div>
+    <div class="step">
+      <div class="step-n">2</div>
+      <div>The secret is encrypted with the recipient's <strong>Public Key</strong>. Only their corresponding Private Key can decrypt it — mathematically guaranteed.</div>
+    </div>
+    <div class="step">
+      <div class="step-n">3</div>
+      <div>You copy the encrypted blob and send it through <strong>any channel</strong> — email, Slack, company messenger — it doesn't matter who reads it.</div>
+    </div>
+    <div class="step">
+      <div class="step-n">4</div>
+      <div>The recipient decrypts it privately on their machine. <strong>No password exchange needed.</strong></div>
+    </div>
+
+    <div class="lock-visual">🔑 🔒 📨</div>
+
+    <div class="security-note">
+      <strong>Zero server involvement.</strong> This page contains only the recipient's public key (which is meant to be public). Your plaintext is never transmitted anywhere. You can verify this by inspecting the network tab in DevTools — you'll see zero outgoing requests when you click Encrypt.
+    </div>
+  </div>
+</main>
+
+<footer>
+  <span>RSA-OAEP 4096-bit + AES-256-GCM hybrid encryption · Web Crypto API</span>
+  <span>Everything runs locally in your browser</span>
+</footer>
+
+<script>
+// ─── PASTE YOUR PUBLIC KEY HERE ─────────────────────────────────────────────
+// Run keygen.html on your machine, copy the Public Key, and replace the
+// placeholder below (keep the backticks and the variable assignment).
+
+const PUBLIC_KEY_PEM = `-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA7gV2qKwo2t0YLipbj/D3
+nOHXkKEE0xVzSuwUWsYQXTVBO8/ybMKDxnGMi1dTleC0ejaozvipgngbUHksmjcj
+ekj+UUXj/L/aeWMsGRE+pXEGYF1xA+fJ0cV9DMX33F3lLPBx7xgqSh0GpWs415AA
+8hQDXoE2ksmsEWSlbVTQK2iOgReEXg2/jACuJoB1gPEjgKFLbd7w9sIYrMmHjam/
+KQtsabXmOXwwcIAiRICozTq9Uyvf2dvMKNHo2+taZNvh4QoGmmt7TIRI45ie4l7R
+CfYS4FI1Xxd69fUvUtTWZUfX9inuN+eKzeH8jETYT4rqeERl8eYRZi4VZOhKylfs
+qKIldPzBBASi1nCpEAV3+LMBpaMRJXdAdj4Nxc5rwz8ZyWQwcs4lSn/aWu7UUQlP
+PLVWlck0O69MUU7CZh9GkXn9aVe7h25rFIyGo1FsShJOEJKZl37sr2WpRKg1NEQD
+uk7QX3yU/KtJCjLqSLRM8e8CiPhMCTl+x5BxaxG8JZWy4MlxNn3ZjZZINk6lp18J
+WESruw8LGkW9Oxt/5TzmjpDFW9gn/GQcSastLU/9uST8z4nZkfNR1amuwdSAeRO9
+we1kW3Ck4JsokuVFAx8aJUhDZhsCA8ceCUszR+G+MywcsoSG0RBv99DkDNrgHKDO
+4US+uSv3BV8DK2j0haXLDOUCAwEAAQ==
+-----END PUBLIC KEY-----`;
+
+// ────────────────────────────────────────────────────────────────────────────
+
+// RSA can only encrypt small data, so we use hybrid encryption:
+// 1. Generate a random AES-256 key
+// 2. Encrypt the plaintext with AES-256-GCM
+// 3. Encrypt the AES key with RSA-OAEP
+// 4. Bundle both together → recipient decrypts AES key with RSA, then decrypts data
+
+async function importPublicKey(pem) {
+  const b64 = pem.replace(/-----[^-]+-----/g, '').replace(/\s/g, '');
+  const buf = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  return crypto.subtle.importKey(
+    'spki', buf,
+    { name: 'RSA-OAEP', hash: 'SHA-256' },
+    false, ['encrypt']
+  );
+}
+
+async function encryptMessage() {
+  const plaintext = document.getElementById('plaintext').value.trim();
+  if (!plaintext) { showError('Please enter something to encrypt.'); return; }
+
+  if (PUBLIC_KEY_PEM.includes('YOUR_PUBLIC_KEY_HERE')) {
+    showError('⚠ This page has not been configured yet. The site owner needs to paste their public key into this page.');
+    return;
+  }
+
+  try {
+    const enc = new TextEncoder();
+
+    // 1. Generate ephemeral AES-256-GCM key
+    const aesKey = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt']);
+    const rawAes = await crypto.subtle.exportKey('raw', aesKey);
+
+    // 2. Encrypt plaintext with AES
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const cipherBuf = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, aesKey, enc.encode(plaintext));
+
+    // 3. Encrypt AES key with RSA public key
+    const pubKey = await importPublicKey(PUBLIC_KEY_PEM);
+    const encAesKey = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, pubKey, rawAes);
+
+    // 4. Pack everything: [2 bytes: encAesKey length][encAesKey][12 bytes: iv][ciphertext]
+    const encAesKeyArr = new Uint8Array(encAesKey);
+    const keyLen = encAesKeyArr.length;
+    const lenBuf = new Uint8Array([keyLen >> 8, keyLen & 0xff]);
+
+    const total = new Uint8Array(2 + keyLen + 12 + cipherBuf.byteLength);
+    total.set(lenBuf, 0);
+    total.set(encAesKeyArr, 2);
+    total.set(iv, 2 + keyLen);
+    total.set(new Uint8Array(cipherBuf), 2 + keyLen + 12);
+
+    const b64 = btoa(String.fromCharCode(...total));
+    const blob = `RSA::${b64}`;
+
+    document.getElementById('resultText').textContent = blob;
+    document.getElementById('resultLabel').textContent = '✓ Encrypted — safe to share anywhere';
+    const r = document.getElementById('result');
+    r.classList.remove('error');
+    r.classList.add('show');
+
+  } catch(e) {
+    showError('Encryption failed: ' + e.message);
+  }
+}
+
+function showError(msg) {
+  document.getElementById('resultText').textContent = msg;
+  document.getElementById('resultLabel').textContent = '✗ Error';
+  const r = document.getElementById('result');
+  r.classList.add('show', 'error');
+}
+
+function copyResult() {
+  const text = document.getElementById('resultText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = 'Copy Encrypted Text', 2000);
+  });
+}
+</script>
+</body>
+</html>
